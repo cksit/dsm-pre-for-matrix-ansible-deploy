@@ -1,0 +1,127 @@
+---
+# The bare domain name which represents your Matrix identity.
+# Matrix user ids for your server will be of the form (`@user:<matrix-domain>`).
+#
+# Note: this playbook does not touch the server referenced here.
+# Installation happens on another server ("matrix.<matrix-domain>").
+#
+# If you've deployed using the wrong domain, you'll have to run the Uninstalling step,
+# because you can't change the Domain after deployment.
+#
+# Example value: example.com
+matrix_domain: 
+
+# The Matrix homeserver software to install.
+# See:
+#  - `roles/custom/matrix-base/defaults/main.yml` for valid options
+# - the `docs/configuring-playbook-IMPLEMENTATION_NAME.md` documentation page, if one is available for your implementation choice
+matrix_homeserver_implementation: synapse
+
+# A secret used as a base, for generating various other secrets.
+# You can put any string here, but generating a strong one is preferred (e.g. `pwgen -s 64 1`).
+matrix_homeserver_generic_secret_key: "dev"
+
+# By default, the playbook manages its own Traefik (https://doc.traefik.io/traefik/) reverse-proxy server.
+# It will retrieve SSL certificates for you on-demand and forward requests to all other components.
+# For alternatives, see `docs/configuring-playbook-own-webserver.md`.
+matrix_playbook_reverse_proxy_type: playbook-managed-traefik
+
+# This is something which is provided to Let's Encrypt when retrieving SSL certificates for domains.
+#
+# In case SSL renewal fails at some point, you'll also get an email notification there.
+#
+# If you decide to use another method for managing SSL certificates (different than the default Let's Encrypt),
+# you won't be required to define this variable (see `docs/configuring-playbook-ssl-certificates.md`).
+#
+# Example value: someone@example.com
+devture_traefik_config_certificatesResolvers_acme_email: "xxx@gmail.com"
+
+# A Postgres password to use for the superuser Postgres user (called `matrix` by default).
+#
+# The playbook creates additional Postgres users and databases (one for each enabled service)
+# using this superuser account.s
+devture_postgres_connection_password: "password"
+
+# Synology Tailored Parameters:
+matrix_user_username: "matrix"
+matrix_user_groupname: "matrix"
+matrix_user_uid: 1027
+matrix_user_gid: 65536
+devture_systemd_docker_base_host_command_docker: "/usr/local/bin/docker"
+devture_timesync_ntpd_service: "chronyd"
+matrix_playbook_docker_installation_enabled: false
+matrix_base_data_path: "/volume1/docker/matrix"
+
+
+#matrix_ssl_retrieval_method: none
+
+# An identity server is not a must.
+matrix_ma1sd_enabled: false
+# Disabling this will prevent email-notifications and other such things from working.
+exim_relay_enabled: false
+
+#matrix_playbook_reverse_proxy_type: playbook-managed-traefik
+
+# Ensure that public urls use https
+matrix_playbook_ssl_enabled: true
+
+# Disable the web-secure (port 443) endpoint, which also disables SSL certificate retrieval
+devture_traefik_config_entrypoint_web_secure_enabled: false
+
+# If your reverse-proxy runs on another machine, consider using `0.0.0.0:81`, just `81` or `SOME_IP_ADDRESS_OF_THIS_MACHINE:81`
+devture_traefik_container_web_host_bind_port: '127.0.0.1:81'
+matrix_playbook_public_matrix_federation_api_traefik_entrypoint_host_bind_port: '127.0.0.1:8449'
+
+# We bind to `127.0.0.1` by default (see above), so trusting `X-Forwarded-*` headers from
+# a reverse-proxy running on the local machine is safe enough.
+devture_traefik_config_entrypoint_web_forwardedHeaders_insecure: true
+
+# Or, if you're publishing the port (`devture_traefik_container_web_host_bind_port` above) to a public network interfaces:
+# - remove the `devture_traefik_config_entrypoint_web_forwardedHeaders_insecure` variable definition above
+# - uncomment and adjust the line below
+# devture_traefik_config_entrypoint_web_forwardedHeaders_trustedIPs: ['IP-ADDRESS-OF-YOUR-REVERSE-PROXY']
+
+# Likewise (to `devture_traefik_container_web_host_bind_port` above),
+# if your reverse-proxy runs on another machine, consider changing the `host_bind_port` setting below.
+matrix_playbook_public_matrix_federation_api_traefik_entrypoint_config_custom:
+  forwardedHeaders:
+    insecure: true
+    # If your reverse-proxy runs on another machine, remove the config above and use this config instead:
+    # config:
+    #   forwardedHeaders:
+    #     insecure: true
+    #     # trustedIPs: ['IP-ADDRESS-OF-YOUR-REVERSE-PROXY']
+
+
+
+
+# Components enabled:
+
+# Enable Admin Console
+matrix_synapse_admin_enabled: true
+
+matrix_dimension_enabled: false
+matrix_dimension_admins:
+- "@admin:example.com"
+matrix_dimension_access_token: syt_Y2tzaXQ_sdfgesgesdgee_36qgDE
+
+# My Customization
+matrix_synapse_enable_room_list_search: false
+matrix_synapse_include_profile_data_on_invite: false
+#matrix_synapse_user_directory_prefer_local_users: true
+matrix_synapse_user_directory_search_all_users: false
+matrix_synapse_limit_profile_requests_to_users_who_share_rooms: true 
+matrix_synapse_federation_enabled: false
+# public room over federation
+
+
+
+# Disable integrated Coturn server
+matrix_coturn_enabled: false
+#matrix_coturn_turn_static_auth_secret: aSJ44As5KuZtOl6hG6JiR8Tp1zlGJpHGUCJgYkcXnIiubCqzlrUl1lgTd3dqN
+matrix_synapse_turn_shared_secret: aSJ44As5KuZtOl6hG6JiR8Tp1zlGJpHGUCJgYkcXnIiubCqzlrUl1lgTd3dqN
+matrix_synapse_turn_allow_guests: True
+# Point Synapse to your other Coturn server
+matrix_synapse_turn_uris:
+- turn:152.67.123.98?transport=udp
+- turn:152.67.123.98?transport=tcp
