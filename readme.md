@@ -1,6 +1,6 @@
 
 ## Purpose
-This document is a tutorial for preparing Synology DSM for the installation of the Ansible Matrix project. It is intended for users who are already familiar with DSM, SSH, and [Matrix Docker Ansible Deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) Project. Please ensure you understand each step before executing commands or making configuration changes.
+This document is a tutorial for preparing Synology DSM for the installation of the [Matrix Docker Ansible Deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) project. It is intended for users who are already familiar with DSM, SSH, and Matrix Docker Ansible Deploy project. Please ensure you understand each step before executing commands or making configuration changes.
 
 ### Assumption/Prerequisite
 1. You are using DSM to handle reverse proxy requests.
@@ -8,41 +8,51 @@ This document is a tutorial for preparing Synology DSM for the installation of t
 3. Your DSM OS version is 7 or higher.
 4. you are using Volume1 as the default location for docker
 
-### Warning/Known Issue
-1. The current workaround is not perfect. You need to execute the install command again if you restart your DSM.
-And your data will be reserved.
-2. You need to remove the symbolic link of `docker.service` before system reboot. If you failed to do this, DSM will ask you to repair the `Container Manager`. After repair, you should be able to execute the install command again.
-
 ### Synology GUI Preparation
 1. Enable SSH service
-    From `Control Panel` > `Terminal & SNMP` > `Enable SSH service`
+    - From `Control Panel` > `Terminal & SNMP` > `Enable SSH service`
 2. Enable UserHome Directory
-    From `Control Panel` > `User & User Group` > `Enable user home service`
+    - From `Control Panel` > `User & User Group` > `Enable user home service`
 3. Install `Container Manager` from `Package Center`
 4. Install `Web Station` (may not be needed).
 5. Create Users and User group for `matrix`. 
-6. Create Reverse Proxy for your docker container. e.g. matrix.<your-domain>, element.<your-domain>
+6. Create Reverse Proxy for your docker container. e.g. matrix, element, admin page or other services you have enabled.
     From `Control Panel` > `Login Portal` > `Advanced` > `Reverse Proxy`
     Below is one of the examples
     - Reverse Proxy Name: (free text)
     - Source
-        - Protocol: HTTPS
-        - hostname: element.<your-domain>
-        - Port: 443
+        - Protocol: `HTTPS`
+        - hostname: `element.example.com`
+        - Port: `443`
     - Destination
-        - Protocol: HTTP
-        - localhost
-        - port: 81 
-7. Create Mount Volume scheduler. 
+        - Protocol: `HTTP`
+        - hostname: `localhost`
+        - port: `81` 
+7. Create two Task Scheduler. 
 This is the required step, otherwise you need to execute this command everytime after system reboot. If failed to do so, matrix container will not work.
     From `Control Panel` > `Task Scheduler` > `Create` > `Trigered Task`
-    - General
-        - Task: (Free Text)
-        - User: root (you can test with other user as well.)
-        - Event: boot-up
-    - Task Settings
-        - Run Command: sudo mount --make-shared /volume1
-
+    - Boot up Schedule
+        - General
+            - Task: `Bootup_Matrix(Free Text)`
+            - User: `root`
+            - Event: `boot-up`
+        - Task Settings
+            - Run Command: 
+            ```SH
+                mount --make-shared /volume1 
+                ln -s /usr/local/lib/systemd/system/pkg-ContainerManager-dockerd.service /etc/systemd/system/docker.service
+                systemctl daemon-reload
+            ```
+    - Shutdown Schedule
+        - General
+            - Task: `Shutdown_Matrix(Free Text)`
+            - User: `root`
+            - Event: `Shutdown`
+        - Task Settings
+            - Run Command: 
+            ```SH
+                rm /etc/systemd/system/docker.service
+            ```
     
 ### SSH to your DSM
 0. (Optional but strongly recommend) Please Enable Key Authentication login for SSH. 
@@ -67,20 +77,20 @@ pip install requests==2.31.0
 
 ```
 
-3. Create docker service alias.
+3. Create docker service alias. If you don't remove this symbolic link, DSM will prompt you to repair Container Manager every time DSM restarts. That's why we need to create `Shutdown` scheduler task to remove link and rebuild it during `Bootup`.
 ```Shell
 sudo ln -s /usr/local/lib/systemd/system/pkg-ContainerManager-dockerd.service /usr/local/lib/systemd/system/docker.service
 sudo systemctl daemon-reload
 # checking service status, you should be able to see it running.
 sudo systemctl status docker
 
-# please execute below code to remove the link. 
+# please execute below code to remove the link if you want.
 # sudo rm /usr/local/lib/systemd/system/docker.service
 ```
 
-4. Mount Volume.
+4. Mount Volume for `matrix-synapse.service`
 ```Shell
-sudo mount --make-shared /volume2
+sudo mount --make-shared /volume1
 ```
 
 5. check the user id and group id for `matrix` user
