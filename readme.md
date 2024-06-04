@@ -71,7 +71,8 @@ source ./myenv/bin/activate
 # (optional) you don't have to upgrade your pip
 python -m pip install --upgrade pip
 
-# normally, you don't have to specify the version while installing the requests package. As of May of 2024, you will encounter an exception while using the latest version of this package.
+# normally, you don't have to specify the version while installing the requests package.
+# As of May of 2024, you will encounter an exception while using the latest version of this package.
 # ref: https://stackoverflow.com/a/78508652
 pip install requests==2.31.0
 
@@ -106,7 +107,7 @@ id matrix
 1. Add custom ansible python interpreter (absolute path of your python) to your hosts file. 
 ```shell
 # Below command is used for SSH key authentication and reference only.
-matrix.<domain> ansible_host=<your-dsm-ip> ansible_ssh_user=<dsm-ssh-user> ansible_python_interpreter=/volume1/path-to-your-python-virtual-env/myenv/bin/python ansible_sudo_pass='your-password'
+matrix.<domain> ansible_host=<your-dsm-ip> ansible_ssh_user=<dsm-ssh-user> ansible_python_interpreter=/absolute-path-to-your-python-virtual-env/bin/python ansible_sudo_pass='your-password'
 ```
 
 2. Modified your `vars.yml` file accordingly. The reverse proxy configuration provided has been tested and works. Only change it if you know what you are doing.
