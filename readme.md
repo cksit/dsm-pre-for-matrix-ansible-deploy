@@ -103,9 +103,10 @@ id matrix
 
 ### Prepare vars.yml and hosts file
 
-1. Add custom ansible python interpreter to your hosts file
+1. Add custom ansible python interpreter (absolute path of your python) to your hosts file. 
 ```shell
-matrix.<domain> ansible_host=<your-dsm-ip> ansible_ssh_user=<dsm-ssh-user> ~/path-to-your-python-virtual-env/myenv/bin/python ansible_sudo_pass='your-password'
+# Below command is used for SSH key authentication and reference only.
+matrix.<domain> ansible_host=<your-dsm-ip> ansible_ssh_user=<dsm-ssh-user> ansible_python_interpreter=/volume1/path-to-your-python-virtual-env/myenv/bin/python ansible_sudo_pass='your-password'
 ```
 
 2. Modified your `vars.yml` file accordingly. The reverse proxy configuration provided has been tested and works. Only change it if you know what you are doing.
