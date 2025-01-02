@@ -8,6 +8,18 @@ This document is a tutorial for preparing Synology DSM for the installation of t
 3. Your DSM OS version is 7 or higher.
 4. you are using Volume1 as the default location for docker
 
+### Ansible Project Preparation
+1. Download [Matrix Docker Ansible Deploy](https://github.com/spantaleev/matrix-docker-ansible-deploy) from GitHub
+2. comment out the below source code in the project file `/roles/custom/matrix-base/tasks/main.yml`
+```YAML
+#- tags:
+#    - always
+#    - setup-system-user
+#    - common
+#  block:
+#    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/setup_matrix_user.yml"
+```
+
 ### Synology GUI Preparation
 1. Enable SSH service
     - From `Control Panel` > `Terminal & SNMP` > `Enable SSH service`

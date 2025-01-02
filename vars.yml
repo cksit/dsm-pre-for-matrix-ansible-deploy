@@ -34,13 +34,13 @@ matrix_playbook_reverse_proxy_type: playbook-managed-traefik
 # you won't be required to define this variable (see `docs/configuring-playbook-ssl-certificates.md`).
 #
 # Example value: someone@example.com
-devture_traefik_config_certificatesResolvers_acme_email: "xxx@gmail.com"
+traefik_config_certificatesResolvers_acme_email: "xxx@gmail.com"
 
 # A Postgres password to use for the superuser Postgres user (called `matrix` by default).
 #
 # The playbook creates additional Postgres users and databases (one for each enabled service)
 # using this superuser account.s
-devture_postgres_connection_password: "password"
+postgres_connection_password: "password"
 
 # Synology Tailored Parameters:
 matrix_user_username: "matrix"
@@ -66,22 +66,22 @@ exim_relay_enabled: false
 matrix_playbook_ssl_enabled: true
 
 # Disable the web-secure (port 443) endpoint, which also disables SSL certificate retrieval
-devture_traefik_config_entrypoint_web_secure_enabled: false
+traefik_config_entrypoint_web_secure_enabled: false
 
 # If your reverse-proxy runs on another machine, consider using `0.0.0.0:81`, just `81` or `SOME_IP_ADDRESS_OF_THIS_MACHINE:81`
-devture_traefik_container_web_host_bind_port: '127.0.0.1:81'
+traefik_container_web_host_bind_port: '127.0.0.1:81'
 matrix_playbook_public_matrix_federation_api_traefik_entrypoint_host_bind_port: '127.0.0.1:8449'
 
 # We bind to `127.0.0.1` by default (see above), so trusting `X-Forwarded-*` headers from
 # a reverse-proxy running on the local machine is safe enough.
-devture_traefik_config_entrypoint_web_forwardedHeaders_insecure: true
+traefik_config_entrypoint_web_forwardedHeaders_insecure: true
 
-# Or, if you're publishing the port (`devture_traefik_container_web_host_bind_port` above) to a public network interfaces:
-# - remove the `devture_traefik_config_entrypoint_web_forwardedHeaders_insecure` variable definition above
+# Or, if you're publishing the port (`traefik_container_web_host_bind_port` above) to a public network interfaces:
+# - remove the `traefik_config_entrypoint_web_forwardedHeaders_insecure` variable definition above
 # - uncomment and adjust the line below
-# devture_traefik_config_entrypoint_web_forwardedHeaders_trustedIPs: ['IP-ADDRESS-OF-YOUR-REVERSE-PROXY']
+# traefik_config_entrypoint_web_forwardedHeaders_trustedIPs: ['IP-ADDRESS-OF-YOUR-REVERSE-PROXY']
 
-# Likewise (to `devture_traefik_container_web_host_bind_port` above),
+# Likewise (to `traefik_container_web_host_bind_port` above),
 # if your reverse-proxy runs on another machine, consider changing the `host_bind_port` setting below.
 matrix_playbook_public_matrix_federation_api_traefik_entrypoint_config_custom:
   forwardedHeaders:
